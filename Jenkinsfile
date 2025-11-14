@@ -44,11 +44,11 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    // Login securely using password-stdin
-                    bat """echo %DOCKER_PASS% | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" login -u %DOCKER_USER% --password-stdin"""
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_HUB_REPO%:latest'
-                }
+               withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                     bat """echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"""
+                     bat 'docker push riyagarasangi/myapp:latest'
+                   }
+
             }
         }
     }
