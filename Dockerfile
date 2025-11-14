@@ -1,10 +1,14 @@
-# Use a supported OpenJDK 17 image
-FROM eclipse-temurin:17-jdk
+# Use OpenJDK 17 base image
+FROM openjdk:17-jdk-slim
 
+# Copy the JAR file built by Maven
+COPY target/myapp-1.0-SNAPSHOT.jar /app/myapp.jar
+
+# Set working directory
 WORKDIR /app
 
-# Copy jar from Maven build
-COPY target/myapp-1.0-SNAPSHOT.jar app.jar
+# Expose the port your app listens on
+EXPOSE 8080
 
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Command to run the app
+ENTRYPOINT ["java", "-jar", "myapp.jar"]
