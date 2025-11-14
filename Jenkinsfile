@@ -1,12 +1,14 @@
 pipeline {
     agent any
+
     tools {
-        maven 'Maven-3.9.11'
+        maven 'Maven-3.9.11'  // Make sure this Maven installation exists in Jenkins
     }
+
     environment {
-        DOCKER_HUB_REPO = 'riyagarasangi/myapp'  // Docker Hub repository
-        DOCKER_IMAGE_TAG = 'latest'
+        DOCKER_HUB_REPO = 'riyagarasangi/myapp'  // Your Docker Hub repository
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -16,21 +18,18 @@ pipeline {
 
         stage('Build') {
             steps {
-                echo 'Compiling the project...'
                 bat 'mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests...'
                 bat 'mvn test'
             }
         }
 
         stage('Package') {
             steps {
-                echo 'Packaging the project into a JAR...'
                 bat 'mvn package -DskipTests'
             }
         }
@@ -38,20 +37,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                bat "\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" build -t %DOCKER_HUB_REPO%:%DOCKER_IMAGE_TAG% ."
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t %DOCKER_HUB_REPO%:latest .'
             }
         }
 
         stage('Push to Docker Hub') {
             steps {
                 echo 'Pushing Docker image to Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
-                                                  usernameVariable: 'DOCKER_USER', 
-                                                  passwordVariable: 'DOCKER_PASS')]) {
-                    // Login using Personal Access Token
-                    bat "\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" login -u %DOCKER_USER% -p %DOCKER_PASS%"
-                    // Push the image
-                    bat "\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" push %DOCKER_HUB_REPO%:%DOCKER_IMAGE_TAG%"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    // Login securely using password-stdin
+                    bat """echo %DOCKER_PASS% | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" login -u %DOCKER_USER% --password-stdin"""
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_HUB_REPO%:latest'
                 }
             }
         }
@@ -62,7 +58,7 @@ pipeline {
             echo '✅ Build, Package, and Docker Push Successful!'
         }
         failure {
-            echo '❌ Pipeline failed! Check the logs above.'
+            echo '❌ Pipeline failed!'
         }
     }
 }
