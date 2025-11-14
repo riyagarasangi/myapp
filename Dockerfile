@@ -1,10 +1,9 @@
-# Use official OpenJDK 17 image as a base
-FROM openjdk:17-slim
+# Use a supported OpenJDK 17 image
+FROM eclipse-temurin:17-jdk
 
-# Set working directory inside container
 WORKDIR /app
 
-# Copy jar file from Maven build
+# Copy jar from Maven build
 COPY target/myapp-1.0-SNAPSHOT.jar app.jar
 
 # Run the jar file
