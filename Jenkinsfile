@@ -1,14 +1,27 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven-3.9.11'
+    }
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/riyagarasangi/myapp.git'
+                git credentialsId: 'github-token', url: 'https://github.com/riyagarasangi/myapp.git', branch: 'main'
             }
         }
         stage('Build') {
             steps {
-                echo 'Build stage - code pulled successfully!'
+                bat 'mvn clean compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+                bat 'mvn package -DskipTests'
             }
         }
     }
